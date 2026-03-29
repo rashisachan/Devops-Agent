@@ -8,20 +8,30 @@ jobs:
   run-agent:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Check label
+        run: echo "Label is ${{ github.event.label.name }}"
+
       - name: Run agent
-        if: contains(github.event.issue.labels.*.name, 'auto-fix')
+        if: |
+          github.event.label.name == 'auto-fix' ||
+          contains(toJSON(github.event.issue.labels), 'auto-fix')
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
