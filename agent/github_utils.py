@@ -53,3 +53,44 @@ def commit_and_push(repo_path: str, branch_name: str,
     repo.index.commit(f"🤖 Auto-fix: {branch_name}")
     origin = repo.remote(name="origin")
     origin.push(branch_name)
+
+# -------------------------------
+# New function: create a test PR
+# -------------------------------
+def create_test_pr(issue_number: int):
+    """
+    Create a dummy Pull Request for testing workflow.
+    """
+    repo = gh.get_repo(os.getenv("GITHUB_REPO"))
+    source = repo.get_branch("main")
+    branch_name = f"test-pr-issue-{issue_number}"
+
+    # Create branch
+    try:
+        repo.create_git_ref(ref=f"refs/heads/{branch_name}", sha=source.commit.sha)
+    except:
+        print(f"Branch {branch_name} already exists")
+    
+    # Create a dummy file
+    file_path = f"test_pr_file_{issue_number}.txt"
+    content = f"This is a test PR for issue #{issue_number}\n"
+    
+    try:
+        repo.create_file(
+            path=file_path,
+            message=f"Add test file for PR (issue #{issue_number})",
+            content=content,
+            branch=branch_name
+        )
+    except:
+        print(f"File {file_path} already exists in branch {branch_name}")
+    
+    # Create PR
+    pr = repo.create_pull(
+        title=f"[TEST PR] Issue #{issue_number}",
+        body=f"This is a test PR created automatically for issue #{issue_number}.",
+        head=branch_name,
+        base="main"
+    )
+    print(f"PR created: {pr.html_url}")
+    return pr.html_url

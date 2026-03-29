@@ -28,6 +28,7 @@ def run_agent(issue_number: int):
     graph = build_graph()
     final_state = graph.invoke(initial_state)
     
+    # Get PR URL from agent
     pr_url = final_state.get('pr_url')
     
     # If no PR is generated, create a dummy test PR for workflow verification
@@ -37,7 +38,6 @@ def run_agent(issue_number: int):
     
     print(f"\n✅ Done! PR created: {pr_url}")
     trace.save_to_file("reasoning_trace.md")
-
 
 if __name__ == "__main__":
     issue_number = int(sys.argv[1])   # pass issue number as argument
