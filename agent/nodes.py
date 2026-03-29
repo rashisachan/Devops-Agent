@@ -1,6 +1,6 @@
 import os
 from langchain_groq import ChatGroq
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from agent.tools import find_relevant_files, read_file, run_code
 from agent.github_utils import clone_repo, commit_and_push, create_pull_request
 
