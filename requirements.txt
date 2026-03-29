@@ -1,14 +1,11 @@
-<<<<<<< HEAD
 langgraph
 langchain
 langchain-groq
 PyGithub
 gitpython
-=======
 langgraph
 langchain
 langchain-groq
 PyGithub
 gitpython
->>>>>>> 54fd0f161c0b39a19fe183c838b6dcb14400ab4d
 python-dotenv
