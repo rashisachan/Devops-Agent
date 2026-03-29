@@ -3,9 +3,4 @@ langchain
 langchain-groq
 PyGithub
 gitpython
-langgraph
-langchain
-langchain-groq
-PyGithub
-gitpython
 python-dotenv
