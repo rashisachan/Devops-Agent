@@ -5,7 +5,7 @@ from agent.tools import find_relevant_files, read_file, run_code
 from agent.github_utils import clone_repo, commit_and_push, create_pull_request
 
 llm = ChatGroq(
-    model="llama3-70b-8192",
+    model="llama-3.3-70b-versatile",
     api_key=os.getenv("GROQ_API_KEY"),
     temperature=0.1
 )
