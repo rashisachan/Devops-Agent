@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import os, sys
 from dotenv import load_dotenv
 from agent.graph import build_graph
@@ -31,7 +30,6 @@ def run_agent(issue_number: int):
 
 if __name__ == "__main__":
     issue_number = int(sys.argv[1])   # pass issue number as argument
-=======
 import os, sys
 from dotenv import load_dotenv
 from agent.graph import build_graph
@@ -64,5 +62,4 @@ def run_agent(issue_number: int):
 
 if __name__ == "__main__":
     issue_number = int(sys.argv[1])   # pass issue number as argument
->>>>>>> 54fd0f161c0b39a19fe183c838b6dcb14400ab4d
     run_agent(issue_number)
