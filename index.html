@@ -530,12 +530,8 @@ footer a { color: var(--accent); text-decoration: none; }
           <label>Repository</label>
           <input id="repoInput" class="mono" placeholder="owner/repo" />
         </div>
-        <div class="field">
-          <label>GitHub Token <span style="color:var(--text-3);font-weight:400">(optional, for submitting)</span></label>
-          <input type="password" id="tokenInput" class="mono" placeholder="ghp_xxxxxxxxxxxx" />
-        </div>
         <button class="btn btn-primary" onclick="saveConfig()">Connect Repository</button>
-        <p class="hint">Token needs <code>repo</code> scope. Stored locally in your browser only.</p>
+        <p class="hint">Connect to a GitHub repository to view and manage issues.</p>
       </div>
     </div>
 
@@ -612,15 +608,14 @@ footer a { color: var(--accent); text-decoration: none; }
 <div class="toast" id="toast"></div>
 
 <script>
-let REPO = '', TOKEN = '';
+let REPO = '';
 
 window.onload = () => {
   try {
     const s = JSON.parse(localStorage.getItem('dva_cfg') || '{}');
     if (s.repo) {
-      REPO = s.repo; TOKEN = s.token || '';
+      REPO = s.repo;
       document.getElementById('repoInput').value = REPO;
-      document.getElementById('tokenInput').value = TOKEN;
       document.getElementById('navRepo').textContent = REPO;
       loadIssues();
     }
@@ -629,9 +624,8 @@ window.onload = () => {
 
 function saveConfig() {
   REPO = document.getElementById('repoInput').value.trim();
-  TOKEN = document.getElementById('tokenInput').value.trim();
   if (!REPO || !REPO.includes('/')) { showToast('Enter a valid repo (owner/repo)'); return; }
-  localStorage.setItem('dva_cfg', JSON.stringify({ repo: REPO, token: TOKEN }));
+  localStorage.setItem('dva_cfg', JSON.stringify({ repo: REPO }));
   document.getElementById('navRepo').textContent = REPO;
   showToast('Connected to ' + REPO);
   loadIssues();
@@ -643,10 +637,10 @@ async function loadIssues() {
   list.innerHTML = `<div class="state-box"><span class="spinner"></span><span style="color:var(--text-3);font-size:13px">Loading issues...</span></div>`;
 
   try {
-    const h = TOKEN ? { 'Authorization': `token ${TOKEN}` } : {};
+    const h = {};
     const [ir, pr] = await Promise.all([
-      fetch(`https://api.github.com/repos/${REPO}/issues?state=all&per_page=30&labels=auto-fix`, { headers: h }),
-      fetch(`https://api.github.com/repos/${REPO}/pulls?state=all&per_page=50`, { headers: h })
+      fetch(`https://api.github.com/repos/${REPO}/issues?state=all&per_page=30&labels=auto-fix`),
+      fetch(`https://api.github.com/repos/${REPO}/pulls?state=all&per_page=50`)
     ]);
 
     if (!ir.ok) { const e = await ir.json(); throw new Error(e.message || 'Failed'); }
@@ -777,7 +771,6 @@ function toggleTrace(id) {
 
 async function submitIssue() {
   if (!REPO) { showToast('Connect a repository first'); return; }
-  if (!TOKEN) { showToast('GitHub token required to submit issues'); return; }
   const title = document.getElementById('issueTitle').value.trim();
   const body = document.getElementById('issueBody').value.trim();
   if (!title) { showToast('Please enter a title'); return; }
@@ -789,10 +782,13 @@ async function submitIssue() {
   try {
     const res = await fetch(`https://api.github.com/repos/${REPO}/issues`, {
       method: 'POST',
-      headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, body: body || 'Submitted via DevOps Agent dashboard.', labels: ['auto-fix'] })
     });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.message || 'Failed'); }
+    if (!res.ok) { 
+      const e = await res.json(); 
+      throw new Error(e.message || 'Failed. For public repositories, issues can be created without authentication. For private repos, authentication is required.');
+    }
     const issue = await res.json();
     document.getElementById('issueTitle').value = '';
     document.getElementById('issueBody').value = '';
