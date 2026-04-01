@@ -1,0 +1,37 @@
+name: Auto Fix Agent
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  fix-bug:
+    if: contains(github.event.issue.labels.*.name, 'auto-fix')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Make dummy fix
+        run: |
+          echo "// fix applied" >> script.js
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "Auto fix for issue #${{ github.event.issue.number }}"
+          title: "Fix (#${{ github.event.issue.number }})"
+          body: |
+            Auto-generated fix
+
+            Reasoning Trace
+
+            ### Step 1: Identify Issue
+            **Details:** Found bug in code  
+            **Result:** Error detected  
+
+            ### Step 2: Fix
+            **Details:** Applied fix  
+            **Result:** Code updated  
+          branch: auto-fix-${{ github.event.issue.number }}
