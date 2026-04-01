@@ -68,7 +68,7 @@ def commit_and_push(repo_path: str, branch_name: str,
     repo.index.add([file_path])
     repo.index.commit(f"🤖 Auto-fix: {branch_name}")
     origin = repo.remote(name="origin")
-    origin.push(branch_name)
+    origin.push(branch_name, force=True)
 
 def create_test_pr(issue_number: int):
     """Create a dummy Pull Request for testing workflow."""
